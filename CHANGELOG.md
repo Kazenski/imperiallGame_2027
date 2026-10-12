@@ -34,6 +34,53 @@ Categorias: `Adicionado`, `Alterado`, `Descontinuado`, `Removido`, `Corrigido`, 
 - **`docs/SECURITY.md`** alinhado ao setup real: comando do keystore com PKCS12, os 4
   segredos de assinatura e a variável de repositório `DEMO_MODE`.
 
+## [0.2.0] - 2026-10-12
+
+O app passa a ter **backend real**: login por e-mail/senha, progresso persistido
+no Supabase e proteção de rota. O modo demo continua disponível (sem credenciais)
+e é o padrão do release enquanto não houver um projeto Supabase configurado.
+
+### Adicionado
+
+- **Autenticação (Supabase Auth)**: tela de login/cadastro por e-mail e senha,
+  sessão persistente, mensagens de erro em português e proteção de rota — quem
+  não está autenticado só vê a tela de entrada.
+- **`SupabaseGameRepository` implementado**: `load()` lê perfil, jogador,
+  atividades, missões, conquistas e guilda; `save()` grava tudo; `reset()` zera
+  o progresso. Substitui o stub que lançava `UnimplementedError`.
+- **RPC `sync_game_state`**: gravação atômica e idempotente do estado, com
+  **XP monotônico** (nunca regride) e **nível recalculado no servidor**.
+- **RPC `ensure_player`**: cria perfil + jogador no primeiro acesso, sem corrida
+  entre abas nem username duplicado.
+- **RPC `reset_progress`**: zera atividades, missões e conquistas do usuário.
+- **Função `guild_members`**: ranking interno da guilda (XP dos últimos 7 dias),
+  via `security definer` para agregar atividades de outros membros.
+- **Seção "Conta" no perfil**: mostra o e-mail e permite sair da conta.
+- **Serialização testável** (`buildSyncPayload`): função pura que monta o pacote
+  enviado ao servidor, com **6 testes** novos.
+- **`supabase/README.md`**: passo a passo para aplicar schema e policies.
+
+### Alterado
+
+- **`main.dart`** inicializa o Supabase apenas quando há credenciais; sem elas, o
+  app abre em modo demonstração.
+- **`gameRepositoryProvider` e `GameController`** observam o usuário atual e
+  recarregam o estado ao entrar/sair/trocar de conta.
+- **`anonKey` → `publishableKey`** na inicialização (API atual do `supabase_flutter`).
+- **`quest_progress.progress` e `target`** passam de `integer` para `numeric`,
+  preservando progresso fracionado (ex.: 6,4 km).
+- **`activities`** ganha `amount`, `intensity` e `client_ref` (inserção idempotente).
+- **`players`** ganha `activities_total`, `quests_completed_total` e `unlocked_gear`.
+- Versão do app: **0.2.0+3**.
+
+### Segurança
+
+- **Schema e policies validados em um Postgres real** (PGlite/WASM): idempotência,
+  RPCs, XP monotônico, RLS bloqueando acesso entre usuários e reset.
+- **Modelo de confiança documentado** em `docs/SECURITY.md`: o servidor protege os
+  invariantes estruturais (XP não regride, nível derivado, RLS por dono); a
+  progressão detalhada roda no app e migrará para o servidor na v0.3.0.
+
 ## [0.1.1] - 2026-10-12
 
 Infraestrutura de backend e publicação. O app continua em **modo demo**, mas o
@@ -82,6 +129,7 @@ Primeira versão navegável do esqueleto (modo demo, dados mockados).
 - **Registro de treino**: entrada de atividade com estimativa de XP em tempo real.
 - **Navegação completa** entre as telas principais.
 
+[0.2.0]: https://github.com/Kazenski/imperiallGame_2027/releases/tag/v0.2.0
 [0.1.1]: https://github.com/Kazenski/imperiallGame_2027/releases/tag/v0.1.1
 [0.1.0]: https://github.com/Kazenski/imperiallGame_2027/releases/tag/v0.1.0
-[Não publicado]: https://github.com/Kazenski/imperiallGame_2027/compare/v0.1.1...HEAD
+[Não publicado]: https://github.com/Kazenski/imperiallGame_2027/compare/v0.2.0...HEAD

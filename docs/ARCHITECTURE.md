@@ -102,10 +102,29 @@ profiles              players
 ```
 
 - **RLS em todas as tabelas.** Padrão: `auth.uid() = id`. Um usuário só lê/escreve o próprio dado.
-- Escritas de XP passam por **função SQL** (`award_xp`), não por `update` direto do cliente — impede trapaça simples.
-- Ranking usa **view materializada** atualizada por cron (`pg_cron`).
+- A gravação do progresso passa pela RPC **`sync_game_state`** (não por `update` direto do
+  cliente): ela recalcula o nível no servidor e garante XP monotônico. A RPC `award_xp`
+  permanece disponível como porta server-side de referência.
+- Ranking da guilda usa a função **`guild_members`** (`security definer`) para agregar o XP
+  semanal de outros membros; `guild_ranking` é a view materializada para o ranking global.
 
-Detalhes das políticas em `supabase/policies.md` (a criar na v0.2).
+Detalhes das políticas em [`supabase/policies.sql`](../supabase/policies.sql) e o passo a
+passo de aplicação em [`supabase/README.md`](../supabase/README.md).
+
+### Autenticação e fluxo de dados
+
+```text
+main()  ── Supabase.initialize() quando há credenciais
+  │
+  ├─ authProvider ── onAuthStateChange ──► appRouterProvider (guard de rota)
+  │                                          └─ /login quando não há sessão
+  │
+  └─ gameControllerProvider
+       ├─ currentUserIdProvider (muda ao entrar/sair → recarrega)
+       └─ gameRepositoryProvider
+            ├─ DemoGameRepository      (modo demo)
+            └─ SupabaseGameRepository  (load / save / reset)
+```
 
 ---
 
@@ -128,6 +147,7 @@ tudo declarativo, sem empilhar rotas manualmente.
 |---|---|---|
 | Unitário | Cálculo de XP, curva de níveis, streak | `test/core/` |
 | Unitário | Serviços com repositório fake | `test/services/` |
+| Unitário | Serialização enviada ao servidor | `test/data/` |
 | Widget | Telas principais renderizam | `test/features/` |
 
 Meta: **regra de negócio 100% coberta**. Widget tests cobrem os caminhos felizes.

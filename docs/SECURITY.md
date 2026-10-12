@@ -131,15 +131,34 @@ create policy "usuario atualiza o proprio player"
   with check (auth.uid() = id);
 ```
 
-### Anti-trapaça
+### Anti-trapaça e modelo de confiança
 
-XP **não** é atualizado por `update` direto do cliente. Use função `security definer`:
+O cliente **não** recebe policy de `UPDATE` em `players`. Toda gravação de progresso
+passa pela RPC `sync_game_state` (`security definer`), que:
+
+- recalcula o **nível** a partir do XP — o cliente não escolhe o nível;
+- grava o XP de forma **monotônica** (`greatest(current, incoming)`) — nunca regride;
+- insere atividades de forma **idempotente** por `client_ref`;
+- valida faixas (`check`/`least`) antes de gravar.
+
+**Invariantes garantidos no servidor:**
+
+| Garantia | Onde |
+|---|---|
+| Um usuário só lê/escreve o próprio progresso | RLS (`auth.uid() = player_id`) |
+| Dados públicos (perfil/ranking) são somente leitura | policy `select` + ausência de `update` |
+| XP não regride e o nível é derivado | RPC `sync_game_state` |
+| Atividade duplicada não conta duas vezes | índice único `(player_id, client_ref)` |
+
+**Limite conhecido (v0.2.0):** as regras de *quanto* XP cada treino vale rodam no app
+(`ProgressionEngine`). Um cliente modificado poderia informar um valor maior — o servidor
+limita o teto por atividade, mas não conhece a regra completa. Mover as regras para o
+servidor (SQL) é meta da **v0.3.0** e está registrado no `docs/ROADMAP.md`.
 
 ```sql
-create or replace function award_xp(p_amount int, p_reason text)
-returns players
-language plpgsql security definer set search_path = public
-as $$
+-- Porta de referência (server-side), mantida para uso futuro:
+create or replace function award_xp(p_amount int, p_kind text, p_duration_min int default null)
+returns players language plpgsql security definer set search_path = public as $$
 declare v_player players;
 begin
   if p_amount <= 0 or p_amount > 5000 then
@@ -147,21 +166,17 @@ begin
   end if;
 
   update players
-     set xp = xp + p_amount,
-         updated_at = now()
+     set xp = xp + p_amount, updated_at = now()
    where id = auth.uid()
   returning * into v_player;
 
-  insert into activities (player_id, amount, reason)
-  values (auth.uid(), p_amount, p_reason);
+  insert into activities (player_id, kind, xp_awarded, duration_min)
+  values (auth.uid(), p_kind, p_amount, p_duration_min);
 
   return v_player;
 end;
 $$;
 ```
-
-E remova o `update` direto de XP na policy da tabela. Assim, mesmo com o app comprometido,
-ninguém injeta 1 bilhão de XP pela API.
 
 ### Checklist de segurança do Supabase
 

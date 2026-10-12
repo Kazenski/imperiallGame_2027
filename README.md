@@ -29,7 +29,7 @@ cumpre missões diárias e sobe no ranking da sua guilda.
 
 ## Funcionalidades
 
-### ✅ Já implementado (v0.1.1)
+### ✅ Já implementado (v0.2.0)
 
 - **Núcleo de XP e níveis** — curva de progressão, cálculo de XP por tipo de atividade e detecção de level-up.
 - **Personagem/avatar evolutivo** — o avatar muda de aparência conforme o nível e o equipamento desbloqueado.
@@ -38,28 +38,33 @@ cumpre missões diárias e sobe no ranking da sua guilda.
 - **Streak e conquistas** — sequência de dias ativos, medalhas e desbloqueios.
 - **Guildas e ranking** — placar interno, ranking semanal e progresso coletivo.
 - **Registro de treino** — tela de entrada de atividade com estimativa de XP em tempo real.
-- **Navegação completa** — app navegável com dados mockados (modo *demo*), pronto para plugar o backend.
+- **Login e cadastro (Supabase Auth)** — e-mail/senha, sessão persistente e proteção de rota.
+- **Progresso persistido na nuvem** — o estado é gravado de forma atômica e volta igual em outro aparelho.
+- **Modo demo** — sem credenciais, o app abre com dados mockados e navegação completa.
 
-### 🗄️ Backend (Supabase) — provisionado
+### 🗄️ Backend (Supabase)
 
-O projeto Supabase **`imperiall-game`** já está criado e com o **schema aplicado**:
-6 tabelas (`profiles`, `players`, `activities`, `quest_progress`, `achievements`, `guilds`),
-RLS ligada em todas e a função `award_xp` como única porta de entrada de XP.
+O projeto Supabase **`imperiall-game`** está provisionado com 6 tabelas
+(`profiles`, `players`, `activities`, `quest_progress`, `achievements`, `guilds`),
+**RLS ligada em todas** e as funções `ensure_player`, `sync_game_state`,
+`reset_progress` e `guild_members`.
 
-> O app **ainda roda em modo demo**. A autenticação e o `SupabaseGameRepository`
-> chegam na **v0.2.0** (veja [`docs/ROADMAP.md`](docs/ROADMAP.md)); até lá o release
-> é gerado com a variável de repositório `DEMO_MODE=true`.
+O progresso é gravado via RPC `sync_game_state`, que recalcula o **nível no
+servidor** e garante que o **XP nunca regride**. O modo demo continua sendo o
+padrão do release enquanto não houver credenciais configuradas
+(variável de repositório `DEMO_MODE`).
+
+> Como aplicar o schema e ligar o modo conectado: [`supabase/README.md`](supabase/README.md).
 
 ### 🔜 Planejado
 
 Veja [`docs/ROADMAP.md`](docs/ROADMAP.md) para a lista completa e priorizada.
 
-- Autenticação real com Supabase (e-mail + OAuth).
 - Sincronização offline-first (fila de operações local).
 - Integração com Health Connect / Apple Health (importar passos e treinos).
 - Notificações push de missões e streak em risco.
 - Loja de itens e economia interna (ouro, gemas, cosméticos).
-- Ranking global por temporada.
+- OAuth Google e ranking global por temporada.
 
 ---
 
@@ -100,14 +105,21 @@ nenhuma chave para ver tudo funcionando.
 
 ### Modo conectado (Supabase)
 
+1. Aplique o schema no seu projeto: veja [`supabase/README.md`](supabase/README.md).
+2. Crie o `.env` com as credenciais:
+
 ```bash
 copy .env.example .env              # Windows
-# preencha SUPABASE_URL e SUPABASE_ANON_KEY
-flutter run --dart-define-from-file=.env
+# preencha SUPABASE_URL e SUPABASE_ANON_KEY (a chave pública do projeto)
+flutter run --dart-define-from-file=.env --dart-define=DEMO_MODE=false
 ```
 
+Com `DEMO_MODE=false` e credenciais válidas, o app abre na **tela de login** e o
+progresso passa a ser salvo na nuvem.
+
 > O arquivo `.env` está no `.gitignore`. **Nunca** faça commit de chaves.
-> A `anon key` é pública por design (protegida por RLS); a `service_role` **nunca** vai para o app.
+> A chave pública (anon/publishable) é pública por design (protegida por RLS);
+> a `service_role` / `secret` **nunca** vai para o app.
 
 ---
 

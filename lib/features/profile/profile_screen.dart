@@ -8,6 +8,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/player.dart';
+import '../../providers/auth_providers.dart';
 import '../../providers/game_providers.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/async_game_view.dart';
@@ -127,6 +128,38 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
+            ] else ...[
+              const SectionHeader(title: 'Conta'),
+              AppCard(
+                child: Column(
+                  children: [
+                    _InfoRow(
+                      icon: Icons.alternate_email,
+                      label: 'E-mail',
+                      value: ref
+                              .watch(supabaseClientProvider)
+                              ?.auth
+                              .currentUser
+                              ?.email ??
+                          '—',
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(
+                        Icons.logout,
+                        color: AppColors.danger,
+                      ),
+                      title: const Text(
+                        'Sair da conta',
+                        style: TextStyle(color: AppColors.danger),
+                      ),
+                      onTap: () => _confirmSignOut(context, ref),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
             ],
 
             const SectionHeader(title: 'Sobre'),
@@ -185,6 +218,39 @@ class ProfileScreen extends ConsumerWidget {
     if (confirmed != true) return;
 
     await ref.read(gameControllerProvider.notifier).resetProgress();
+  }
+
+  Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Sair da conta?'),
+        content: const Text(
+          'Seu progresso fica salvo no servidor. Você pode entrar de novo '
+          'quando quiser.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Sair'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await ref.read(authControllerProvider)?.signOut();
+    // O roteador reage à sessão e leva de volta para a tela de login.
   }
 }
 

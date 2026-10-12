@@ -8,9 +8,10 @@ class AppConfig {
   /// URL pública do projeto Supabase. Vazio => modo demonstração.
   static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 
-  /// Chave `anon` (pública por design, protegida por RLS).
+  /// Chave pública do projeto (anon/publishable — pública por design,
+  /// protegida por RLS).
   ///
-  /// A chave `service_role` NUNCA deve aparecer no app.
+  /// A chave `service_role` / `secret` NUNCA deve aparecer no app.
   static const String supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
   );
@@ -35,7 +36,7 @@ class AppConfig {
   static bool get useDemoData => demoMode || !hasSupabaseCredentials;
 
   /// Versão exibida na UI — mantenha em sincronia com o `pubspec.yaml`.
-  static const String appVersion = '0.1.1';
+  static const String appVersion = '0.2.0';
 
   static const String appName = 'Imperiall Game';
 }

@@ -18,16 +18,21 @@ import '../data/seed/achievement_catalog.dart';
 import '../data/seed/gear_catalog.dart';
 import '../data/seed/level_title_catalog.dart';
 import '../services/progression_engine.dart';
+import 'auth_providers.dart';
 
 /// Escolhe o backend conforme a configuração de ambiente.
 ///
 /// Em modo demo (padrão), usa dados mockados. Com credenciais Supabase
-/// configuradas, usaria a implementação real (v0.2.0).
+/// configuradas, usa a implementação real (autenticada).
 ///
 /// Este provider **não** é `autoDispose`: o repositório em memória precisa
 /// sobreviver enquanto o app estiver aberto, senão o progresso do demo se perde
 /// a cada reconstrução.
+///
+/// Ele observa o usuário atual: ao trocar de conta, um repositório novo é
+/// criado (cache de sincronização limpo).
 final gameRepositoryProvider = Provider<GameRepository>((ref) {
+  ref.watch(currentUserIdProvider);
   if (AppConfig.useDemoData) {
     return DemoGameRepository.seeded();
   }
@@ -53,7 +58,11 @@ class EquipFeedback {
 /// então o estado em memória é preservado enquanto o app viver.
 class GameController extends AsyncNotifier<GameState> {
   @override
-  Future<GameState> build() => ref.read(gameRepositoryProvider).load();
+  Future<GameState> build() {
+    // Recarrega tudo quando o usuário autenticado muda (login/logout/troca).
+    ref.watch(currentUserIdProvider);
+    return ref.read(gameRepositoryProvider).load();
+  }
 
   ProgressionEngine get _engine => ref.read(progressionEngineProvider);
 

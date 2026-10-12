@@ -16,14 +16,23 @@ Estados: ✅ pronto · 🚧 em andamento · 📋 planejado · 💤 ideia futura
 - ✅ Registro de treino com estimativa de XP
 - ✅ Navegação completa em modo demo
 
-## v0.2.0 — Backend real 📋
+## v0.1.1 — Assinatura e backend provisionado ✅
 
-- 📋 Autenticação Supabase (e-mail/senha + OAuth Google)
-- 📋 Schema do banco + **RLS em todas as tabelas**
-- 📋 Função SQL `award_xp` (XP só pelo servidor — anti-trapaça)
+- ✅ Schema do Supabase aplicado + RLS em todas as tabelas
+- ✅ Keystore PKCS12 e APK de release assinado
+- ✅ Branch protection, Dependabot e alertas de vulnerabilidade
+
+## v0.2.0 — Backend real 🚧
+
+- ✅ Autenticação Supabase (e-mail/senha) com proteção de rota e sessão persistente
+- ✅ Schema do banco + **RLS em todas as tabelas**
+- ✅ RPC `sync_game_state` (gravação atômica, XP monotônico, nível derivado no servidor)
+- ✅ `SupabaseGameRepository` real (load/save/reset)
+- ✅ Ranking interno da guilda (`guild_members`)
+- 📋 OAuth Google (além de e-mail/senha)
 - 📋 Sincronização offline-first (fila local + resolução de conflito)
-- 📋 Perfil persistido e editável
-- 📋 Storage de avatar customizado
+- 📋 Edição de perfil (nome, avatar) e Storage de avatar customizado
+- 📋 Mover as regras de progressão para o servidor (anti-trapaça completo)
 
 ## v0.3.0 — Engajamento 📋
 

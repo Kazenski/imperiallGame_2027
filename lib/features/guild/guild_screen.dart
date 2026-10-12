@@ -7,6 +7,7 @@ import '../../core/utils/formatters.dart';
 import '../../data/models/guild.dart';
 import '../../shared/widgets/app_card.dart';
 import '../../shared/widgets/async_game_view.dart';
+import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/section_header.dart';
 
 /// Tela da guilda: resumo e ranking semanal.
@@ -24,6 +25,17 @@ class GuildScreen extends ConsumerWidget {
       body: AsyncGameView(
         builder: (context, state) {
           final guild = state.guild;
+
+          // Ainda não há guilda (jogador novo no modo conectado).
+          if (guild.id.isEmpty) {
+            return const EmptyState(
+              icon: Icons.groups_outlined,
+              title: 'Sem guilda ainda',
+              message: 'Criar e entrar em guildas chega em breve. '
+                  'Por enquanto, treine e suba de nível!',
+            );
+          }
+
           final ranking = guild.ranking;
           final topXp = ranking.isEmpty ? 1 : ranking.first.weeklyXp;
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../data/models/game_state.dart';
 import '../../features/achievements/achievements_screen.dart';
+import '../../features/auth/auth_screen.dart';
 import '../../features/character/character_screen.dart';
 import '../../features/guild/guild_screen.dart';
 import '../../features/home/home_screen.dart';
@@ -16,6 +17,7 @@ import '../../features/workout/reward_screen.dart';
 class AppRoutes {
   const AppRoutes._();
 
+  static const login = '/login';
   static const home = '/';
   static const train = '/train';
   static const hero = '/hero';
@@ -31,10 +33,27 @@ class AppRoutes {
 /// As cinco abas vivem dentro de um `StatefulShellRoute` (cada uma mantém
 /// o próprio histórico). Telas que devem cobrir a barra de navegação
 /// (como a recompensa) ficam fora do shell.
-GoRouter createAppRouter() {
+///
+/// Quando [enableAuth] é `true`, quem não está autenticado é levado para
+/// a tela de login; ao entrar, volta para a home automaticamente.
+GoRouter createAppRouter({bool enableAuth = false, bool isAuthenticated = true}) {
   return GoRouter(
-    initialLocation: AppRoutes.home,
+    initialLocation: enableAuth && !isAuthenticated
+        ? AppRoutes.login
+        : AppRoutes.home,
+    redirect: !enableAuth
+        ? null
+        : (context, state) {
+            final loggingIn = state.matchedLocation == AppRoutes.login;
+            if (!isAuthenticated && !loggingIn) return AppRoutes.login;
+            if (isAuthenticated && loggingIn) return AppRoutes.home;
+            return null;
+          },
     routes: [
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const AuthScreen(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),
