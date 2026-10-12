@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Menor privilégio possível: só leitura do código.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+          retention-days: 7
+
+  changelog-guard:
+    name: Changelog guard (no overwrite)
+    runs-on: ubuntu-latest
+    # Só faz sentido em PR: compara com a base.
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure published entries were not removed
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="origin/${{ github.base_ref }}"
+          git fetch --no-tags origin "${{ github.base_ref }}" >/dev/null 2>&1 || true
+
+          if ! git cat-file -e "$BASE:CHANGELOG.md" 2>/dev/null; then
+            echo "CHANGELOG.md não existia na base; nada a comparar."
+            exit 0
+          fi
+
+          # Extrai apenas as linhas de versões JÁ PUBLICADAS (## [x.y.z] - data)
+          git show "$BASE:CHANGELOG.md" \
+            | awk '/^## \[[0-9]+\.[0-9]+\.[0-9]+\]/{flag=1} flag' \
+            | sed 's/[[:space:]]*$//' | sort > /tmp/base_published.txt
+
+          awk '/^## \[[0-9]+\.[0-9]+\.[0-9]+\]/{flag=1} flag' CHANGELOG.md \
+            | sed 's/[[:space:]]*$//' | sort > /tmp/head_published.txt
+
+          MISSING=$(comm -23 /tmp/base_published.txt /tmp/head_published.txt || true)
+
+          if [ -n "$MISSING" ]; then
+            echo "::error::O CHANGELOG.md removeu conteúdo de versões já publicadas."
+            echo "Linhas que sumiram:"
+            echo "$MISSING"
+            echo ""
+            echo "O CHANGELOG é aditivo. Restaure as linhas e adicione a sua em '[Não publicado]'."
+            exit 1
+          fi
+
+          echo "OK: nenhuma entrada publicada foi removida."

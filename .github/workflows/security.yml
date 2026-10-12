@@ -1,0 +1,83 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Toda segunda-feira, 06:00 UTC — pega segredo que entrou por dependência nova.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: true
+
+  dependency-check:
+    name: Dependency check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check for outdated / vulnerable deps
+        run: flutter pub outdated || true
+
+  secret-scan-grep:
+    name: Fallback grep for obvious secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fail if a real .env or keystore was committed
+        shell: bash
+        run: |
+          set -euo pipefail
+          FAIL=0
+
+          if [ -f .env ]; then
+            echo "::error::Arquivo .env foi commitado. Remova e rotacione as chaves."
+            FAIL=1
+          fi
+
+          if find . -path ./node_modules -prune -o \
+               \( -name '*.jks' -o -name '*.keystore' -o -name 'key.properties' \) -print \
+               | grep -q .; then
+            echo "::error::Keystore/key.properties commitado. Remova e rotacione."
+            FAIL=1
+          fi
+
+          if grep -rIn --exclude-dir=.git --exclude-dir=build \
+               -E 'service_role' lib/ 2>/dev/null | grep -v 'Nunca'; then
+            echo "::error::Referência a service_role dentro de lib/. Essa chave não pode ir para o app."
+            FAIL=1
+          fi
+
+          exit $FAIL

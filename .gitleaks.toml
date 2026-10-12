@@ -1,0 +1,25 @@
+# Configuracao do gitleaks.
+# Documentacao: https://github.com/gitleaks/gitleaks
+
+title = "imperiallGame_2027"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Arquivos que legitimamente contem exemplos/placeholder de segredos"
+paths = [
+  '''^\.env\.example$''',
+  '''^docs/SECURITY\.md$''',
+  '''^docs/CHANGELOG_POLICY\.md$''',
+  '''^README\.md$''',
+  '''^\.github/workflows/.*\.yml$''',
+  '''^supabase/.*\.sql$''',
+  '''^scripts/.*\.ps1$''',
+]
+regexes = [
+  '''SUPABASE_ANON_KEY=''',
+  '''ANDROID_KEYSTORE_BASE64''',
+  '''secrets\.[A-Z_]+''',
+  '''service_role''',
+]

@@ -1,0 +1,77 @@
+# ===== Segredos (NUNCA commitar) =====
+.env
+.env.*
+!.env.example
+*.env
+.envrc
+google-services.json
+GoogleService-Info.plist
+key.properties
+**/key.properties
+*.jks
+*.keystore
+*.p12
+*.p8
+
+# ===== Flutter / Dart =====
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-devtools/
+.fvm/
+*.lock.bak
+
+# ===== IDE =====
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.iml
+*.ipr
+*.iws
+.atom/
+.history/
+
+# ===== Android =====
+android/.gradle/
+android/captures/
+android/local.properties
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/key.properties
+android/**/*.jks
+android/**/*.keystore
+
+# ===== iOS / macOS =====
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+macos/Pods/
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# ===== Windows / Linux =====
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# ===== Build de release =====
+*.apk
+*.aab
+*.ipa
+*.app
+*.zip
+!assets/**/*.zip
+
+# ===== Sistema operacional =====
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+coverage/

@@ -1,0 +1,41 @@
+name: Feature request
+description: Sugira uma funcionalidade ou mecânica de jogo
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Que problema isso resolve?
+      description: Descreva a necessidade do ponto de vista do jogador.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução proposta
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options:
+        - XP / níveis
+        - Atributos
+        - Avatar / equipamento
+        - Missões
+        - Streak / conquistas
+        - Guildas / ranking
+        - Registro de treino
+        - UI / UX
+        - Backend / segurança
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+    validations:
+      required: false

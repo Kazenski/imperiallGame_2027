@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Reportar vulnerabilidade (privado)
+    url: https://github.com/Kazenski/imperiallGame_2027/security/advisories/new
+    about: NÃO abra issue pública para falhas de segurança. Use o canal privado.
+  - name: Documentação
+    url: https://github.com/Kazenski/imperiallGame_2027/tree/main/docs
+    about: Design do jogo, arquitetura, ferramentas e roadmap.
