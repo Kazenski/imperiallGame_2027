@@ -36,7 +36,10 @@ class AppRoutes {
 ///
 /// Quando [enableAuth] é `true`, quem não está autenticado é levado para
 /// a tela de login; ao entrar, volta para a home automaticamente.
-GoRouter createAppRouter({bool enableAuth = false, bool isAuthenticated = true}) {
+GoRouter createAppRouter({
+  bool enableAuth = false,
+  bool isAuthenticated = true,
+}) {
   return GoRouter(
     initialLocation: enableAuth && !isAuthenticated
         ? AppRoutes.login

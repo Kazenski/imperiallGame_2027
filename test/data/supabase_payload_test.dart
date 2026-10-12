@@ -15,26 +15,26 @@ GameState _state({required List<ActivityEntry> activities, Player? player}) {
     player:
         player ??
         Player(
-      id: 'u1',
-      username: 'hero_abc',
-      displayName: 'Eduardo',
-      totalXp: 19260,
-      attributes: const {
-        Attribute.strength: 4200,
-        Attribute.stamina: 5100,
-        Attribute.focus: 2600,
-        Attribute.discipline: 3400,
-      },
-      coins: 1240,
-      gems: 12,
-      streakCurrent: 9,
-      streakBest: 21,
-      activitiesTotal: 87,
-      questsCompletedTotal: 30,
-      unlockedGear: const ['blade_common'],
-      equippedGear: const ['blade_common'],
-      lastActiveDate: DateTime(2026, 10, 12),
-    ),
+          id: 'u1',
+          username: 'hero_abc',
+          displayName: 'Eduardo',
+          totalXp: 19260,
+          attributes: const {
+            Attribute.strength: 4200,
+            Attribute.stamina: 5100,
+            Attribute.focus: 2600,
+            Attribute.discipline: 3400,
+          },
+          coins: 1240,
+          gems: 12,
+          streakCurrent: 9,
+          streakBest: 21,
+          activitiesTotal: 87,
+          questsCompletedTotal: 30,
+          unlockedGear: const ['blade_common'],
+          equippedGear: const ['blade_common'],
+          lastActiveDate: DateTime(2026, 10, 12),
+        ),
     activities: activities,
     quests: [QuestStatus(quest: quest, progress: 6.4, completed: true)],
     unlockedAchievements: const {'first_blood', 'streak_7'},
@@ -174,10 +174,10 @@ void main() {
       );
 
       expect(payload['achievements'], isA<List<String>>());
-      expect(
-        (payload['achievements'] as List).toSet(),
-        {'first_blood', 'streak_7'},
-      );
+      expect((payload['achievements'] as List).toSet(), {
+        'first_blood',
+        'streak_7',
+      });
     });
   });
 }

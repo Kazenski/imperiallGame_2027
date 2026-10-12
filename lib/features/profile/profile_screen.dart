@@ -136,7 +136,8 @@ class ProfileScreen extends ConsumerWidget {
                     _InfoRow(
                       icon: Icons.alternate_email,
                       label: 'E-mail',
-                      value: ref
+                      value:
+                          ref
                               .watch(supabaseClientProvider)
                               ?.auth
                               .currentUser

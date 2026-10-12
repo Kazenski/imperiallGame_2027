@@ -90,9 +90,7 @@ class SupabaseGameRepository implements GameRepository {
 
     _syncedActivityIds
       ..clear()
-      ..addAll([
-        for (final row in activityRows) _activityId(row),
-      ]);
+      ..addAll([for (final row in activityRows) _activityId(row)]);
 
     return GameState(
       player: _playerFromRow(uid: uid, profile: profile, row: playerRow),
@@ -191,7 +189,8 @@ class SupabaseGameRepository implements GameRepository {
       final key = row['quest_key'] as String;
       final current = latest[key];
       final incoming = '${row['period_start']}';
-      if (current == null || '${current['period_start']}'.compareTo(incoming) < 0) {
+      if (current == null ||
+          '${current['period_start']}'.compareTo(incoming) < 0) {
         latest[key] = row;
       }
     }

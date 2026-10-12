@@ -103,9 +103,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -131,8 +129,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 child: TextFormField(
                                   controller: _nameController,
                                   textInputAction: TextInputAction.next,
-                                  textCapitalization:
-                                      TextCapitalization.words,
+                                  textCapitalization: TextCapitalization.words,
                                   decoration: const InputDecoration(
                                     labelText: 'Nome de herói',
                                     prefixIcon: Icon(Icons.person_outline),

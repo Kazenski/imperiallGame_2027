@@ -31,7 +31,8 @@ class GuildScreen extends ConsumerWidget {
             return const EmptyState(
               icon: Icons.groups_outlined,
               title: 'Sem guilda ainda',
-              message: 'Criar e entrar em guildas chega em breve. '
+              message:
+                  'Criar e entrar em guildas chega em breve. '
                   'Por enquanto, treine e suba de nível!',
             );
           }

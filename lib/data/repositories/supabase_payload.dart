@@ -16,7 +16,8 @@ Map<String, dynamic> buildSyncPayload(
     'display_name': player.displayName,
     'total_xp': player.totalXp,
     'attributes': {
-      for (final entry in player.attributes.entries) entry.key.name: entry.value,
+      for (final entry in player.attributes.entries)
+        entry.key.name: entry.value,
     },
     'coins': player.coins,
     'gems': player.gems,
