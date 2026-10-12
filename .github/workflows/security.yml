@@ -74,8 +74,12 @@ jobs:
             FAIL=1
           fi
 
+          # Só falha se `service_role` aparecer em código de verdade —
+          # comentários que apenas alertam sobre a chave não contam.
           if grep -rIn --exclude-dir=.git --exclude-dir=build \
-               -E 'service_role' lib/ 2>/dev/null | grep -v 'Nunca'; then
+               -E 'service_role' lib/ 2>/dev/null \
+               | grep -vE ':[0-9]+:[[:space:]]*//' \
+               | grep -vi 'nunca'; then
             echo "::error::Referência a service_role dentro de lib/. Essa chave não pode ir para o app."
             FAIL=1
           fi

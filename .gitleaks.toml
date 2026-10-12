@@ -16,6 +16,10 @@ paths = [
   '''^\.github/workflows/.*\.yml$''',
   '''^supabase/.*\.sql$''',
   '''^scripts/.*\.ps1$''',
+  # Catálogos de seed usam `key: 'nome_da_missao'` (identificador de jogo),
+  # que a regra genérica de API key confunde com um segredo. Nunca há
+  # segredo real em dados de jogo.
+  '''^lib/data/seed/.*\.dart$''',
 ]
 regexes = [
   '''SUPABASE_ANON_KEY=''',
