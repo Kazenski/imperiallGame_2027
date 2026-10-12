@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Necessário para chamadas HTTP/HTTPS ao Supabase -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="imperiall_game"
         android:name="${applicationName}"
