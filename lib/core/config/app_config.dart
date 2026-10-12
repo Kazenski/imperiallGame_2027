@@ -35,7 +35,7 @@ class AppConfig {
   static bool get useDemoData => demoMode || !hasSupabaseCredentials;
 
   /// Versão exibida na UI — mantenha em sincronia com o `pubspec.yaml`.
-  static const String appVersion = '0.1.0';
+  static const String appVersion = '0.1.1';
 
   static const String appName = 'Imperiall Game';
 }

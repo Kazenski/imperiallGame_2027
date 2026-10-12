@@ -1,7 +1,8 @@
 -- =====================================================================
---  Imperiall Game — schema de referência (planejado para a v0.2.0)
---  Nada aqui é executado automaticamente. Rode manualmente no Supabase
---  ou via `supabase db push` quando a v0.2 começarem.
+--  Imperiall Game — schema (aplicado ao projeto Supabase `imperiall-game`)
+--
+--  Idempotente: pode rodar mais de uma vez no SQL Editor sem erro.
+--  Ordem de aplicação: este arquivo e, em seguida, `policies.sql`.
 --
 --  Princípios:
 --   * RLS habilitada em TODAS as tabelas (ver policies.sql)
@@ -125,7 +126,10 @@ set search_path = public
 as $$
 declare
     v_player public.players;
-    v_level  integer;
+    v_level  integer := 1;
+    v_acc    integer := 0;
+    v_next   integer;
+    c_max_level constant integer := 100;
 begin
     if p_amount is null or p_amount <= 0 or p_amount > 5000 then
         raise exception 'quantidade de XP invalida: %', p_amount
@@ -142,8 +146,17 @@ begin
         raise exception 'player nao encontrado' using errcode = 'no_data_found';
     end if;
 
-    -- recalcula o nivel a partir do XP acumulado (mesma formula do app)
-    v_level := greatest(1, floor(power(v_player.xp / 100.0, 1.0 / 1.5))::int);
+    -- Recalcula o nivel a partir do XP acumulado.
+    -- Mesma curva do app (XpRules.xpToAdvanceFrom): 100 * nivel^1.5, somada
+    -- nivel a nivel. Nao usar formula fechada: ela diverge da soma discreta.
+    loop
+        exit when v_level >= c_max_level;
+        v_next := v_acc + round(100 * power(v_level::numeric, 1.5));
+        exit when v_player.xp < v_next;
+        v_acc := v_next;
+        v_level := v_level + 1;
+    end loop;
+
     if v_level <> v_player.level then
         update public.players set level = v_level where id = v_player.id
         returning * into v_player;

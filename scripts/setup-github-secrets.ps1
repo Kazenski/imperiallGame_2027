@@ -84,8 +84,10 @@ if ($keys.Count -eq 0) {
 Write-Host "Repositorio: $Repo" -ForegroundColor Cyan
 Write-Host "Secrets a configurar: $($keys -join ', ')" -ForegroundColor Cyan
 
+# Usa --body em vez de pipe: o PowerShell acrescenta um '\n' no stdin,
+# o que corromperia senhas e chaves (base64 tolera, senha nao).
 foreach ($k in $keys) {
-    $vars[$k] | gh secret set $k --repo $Repo
+    gh secret set $k --repo $Repo --body $vars[$k]
     if ($LASTEXITCODE -ne 0) { throw "Falha ao configurar o secret '$k'." }
     Write-Host "  [ok] $k" -ForegroundColor Green
 }

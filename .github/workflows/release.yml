@@ -63,7 +63,7 @@ jobs:
           flutter build apk --release \
             --dart-define=SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
             --dart-define=SUPABASE_ANON_KEY="${{ secrets.SUPABASE_ANON_KEY }}" \
-            --dart-define=DEMO_MODE="${{ secrets.SUPABASE_URL == '' && 'true' || 'false' }}"
+            --dart-define=DEMO_MODE="${{ vars.DEMO_MODE || 'true' }}"
 
       - name: Build APK (fallback debug)
         if: steps.keystore.outputs.signed != 'true'

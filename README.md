@@ -29,7 +29,7 @@ cumpre missões diárias e sobe no ranking da sua guilda.
 
 ## Funcionalidades
 
-### ✅ Já implementado (v0.1.0)
+### ✅ Já implementado (v0.1.1)
 
 - **Núcleo de XP e níveis** — curva de progressão, cálculo de XP por tipo de atividade e detecção de level-up.
 - **Personagem/avatar evolutivo** — o avatar muda de aparência conforme o nível e o equipamento desbloqueado.
@@ -39,6 +39,16 @@ cumpre missões diárias e sobe no ranking da sua guilda.
 - **Guildas e ranking** — placar interno, ranking semanal e progresso coletivo.
 - **Registro de treino** — tela de entrada de atividade com estimativa de XP em tempo real.
 - **Navegação completa** — app navegável com dados mockados (modo *demo*), pronto para plugar o backend.
+
+### 🗄️ Backend (Supabase) — provisionado
+
+O projeto Supabase **`imperiall-game`** já está criado e com o **schema aplicado**:
+6 tabelas (`profiles`, `players`, `activities`, `quest_progress`, `achievements`, `guilds`),
+RLS ligada em todas e a função `award_xp` como única porta de entrada de XP.
+
+> O app **ainda roda em modo demo**. A autenticação e o `SupabaseGameRepository`
+> chegam na **v0.2.0** (veja [`docs/ROADMAP.md`](docs/ROADMAP.md)); até lá o release
+> é gerado com a variável de repositório `DEMO_MODE=true`.
 
 ### 🔜 Planejado
 
@@ -108,7 +118,8 @@ Segurança não é etapa final, é requisito:
 - **Segredos fora do código** — `.env` ignorado; produção usa *GitHub Secrets* injetados via `--dart-define`.
 - **Row Level Security** obrigatório em toda tabela do Supabase (ver `supabase/policies.sql`).
 - **Scan de segredos** automático no CI (`gitleaks`) a cada push e pull request.
-- **Dependabot** semanal para dependências do pub e das actions.
+- **Dependabot** semanal para dependências do pub e das actions, com *security updates* e alertas ativos.
+- **Branch protection** na `main`: só merge com CI e scans verdes; force-push e exclusão bloqueados.
 - **Permissões mínimas** nos workflows (`contents: read` por padrão).
 - Roteiro completo de setup seguro: [`docs/SECURITY.md`](docs/SECURITY.md).
 
@@ -143,14 +154,18 @@ imperiallGame_2027/
 | Workflow | Gatilho | O que faz |
 |---|---|---|
 | `ci.yml` | push/PR na `main` | `flutter analyze` + `flutter test` |
-| `release.yml` | tag `v*` | Build do APK assinado + publicação no GitHub Releases |
-| `security.yml` | push/PR + semanal | Scan de segredos com gitleaks |
+| `release.yml` | tag `v*` | Build do **APK assinado** + publicação no GitHub Releases |
+| `security.yml` | push/PR + semanal | Scan de segredos (gitleaks) + checagem de dependências |
 
 Criar uma release:
 
 ```bash
-git tag v0.1.0 && git push origin v0.1.0
+git tag v0.1.1 && git push origin v0.1.1
 ```
+
+O APK de release é assinado com um keystore PKCS12; os 4 segredos de assinatura e as
+credenciais do Supabase ficam em **GitHub Secrets**. O modo demo é controlado pela
+variável de repositório `DEMO_MODE` (padrão `true`).
 
 Configuração de secrets: [`docs/SECURITY.md`](docs/SECURITY.md) e `scripts/setup-github-secrets.ps1`.
 

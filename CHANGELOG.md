@@ -27,6 +27,39 @@ Categorias: `Adicionado`, `Alterado`, `Descontinuado`, `Removido`, `Corrigido`, 
 - Workflow de segurança (`security.yml`) com varredura de segredos via gitleaks.
 - Configuração do Dependabot para `pub` e `github-actions`.
 
+## [0.1.1] - 2026-10-12
+
+Infraestrutura de backend e publicação. O app continua em **modo demo**, mas o
+projeto Supabase real já está provisionado e o APK passa a ser **assinado de verdade**.
+
+### Adicionado
+
+- **Schema do Supabase aplicado** ao projeto `imperiall-game`: tabelas `profiles`,
+  `players`, `activities`, `quest_progress`, `achievements` e `guilds`.
+- **Row Level Security** ligada em todas as tabelas, com 15 policies explícitas
+  (`supabase/policies.sql` agora é idempotente e pode rodar mais de uma vez).
+- **Função `award_xp`** como única porta de entrada de XP (server-side, `security definer`).
+- **View materializada `guild_ranking`** para o ranking semanal.
+- **Assinatura de release**: keystore PKCS12 (RSA 2048) + `android/key.properties`,
+  com os 4 segredos de assinatura configurados no repositório.
+- **Variável de repositório `DEMO_MODE`** para alternar o modo demo no build sem
+  depender da presença de credenciais.
+
+### Alterado
+
+- **Curva de nível no banco** agora replica exatamente a do app (`100 · nível^1.5`
+  somada nível a nível), em vez de uma fórmula fechada que divergia da real.
+- **`release.yml`**: o modo demo passa a ser controlado por `vars.DEMO_MODE`
+  (padrão `true`), evitando gerar um APK que abriria sem backend implementado.
+
+### Segurança
+
+- **`scripts/setup-github-secrets.ps1`** passa a usar `gh secret set --body`,
+  evitando o `\n` que o pipe do PowerShell acrescenta (corrompia senhas).
+- **Branch protection** na `main`: exige CI, changelog guard e scans de segurança,
+  com force-push e exclusão bloqueados.
+- **Alertas de vulnerabilidade** e **Dependabot security updates** habilitados.
+
 ## [0.1.0] - 2026-10-12
 
 Primeira versão navegável do esqueleto (modo demo, dados mockados).
@@ -42,5 +75,6 @@ Primeira versão navegável do esqueleto (modo demo, dados mockados).
 - **Registro de treino**: entrada de atividade com estimativa de XP em tempo real.
 - **Navegação completa** entre as telas principais.
 
+[0.1.1]: https://github.com/Kazenski/imperiallGame_2027/releases/tag/v0.1.1
 [0.1.0]: https://github.com/Kazenski/imperiallGame_2027/releases/tag/v0.1.0
-[Não publicado]: https://github.com/Kazenski/imperiallGame_2027/compare/v0.1.0...HEAD
+[Não publicado]: https://github.com/Kazenski/imperiallGame_2027/compare/v0.1.1...HEAD
