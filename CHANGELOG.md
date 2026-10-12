@@ -27,6 +27,11 @@ Categorias: `Adicionado`, `Alterado`, `Descontinuado`, `Removido`, `Corrigido`, 
 - Workflow de segurança (`security.yml`) com varredura de segredos via gitleaks.
 - Configuração do Dependabot para `pub` e `github-actions`.
 
+### Alterado
+
+- **Actions do CI atualizadas** para as versões atuais (`checkout@v7`, `setup-java@v6`,
+  `upload-artifact@v7`, `action-gh-release@v3`), removendo os avisos de Node 20 depreciado.
+
 ## [0.1.1] - 2026-10-12
 
 Infraestrutura de backend e publicação. O app continua em **modo demo**, mas o
