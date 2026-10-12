@@ -71,6 +71,19 @@ gh secret set SUPABASE_ANON_KEY --body "eyJ..."
 Se um secret não existir, o build de release **cai para APK debug** em vez de falhar — assim
 você não trava o pipeline enquanto o backend não está pronto.
 
+### Variável de repositório
+
+| Nome | Valores | Padrão | Para quê |
+|---|---|---|---|
+| `DEMO_MODE` | `true` / `false` | `true` | se `true`, o APK abre com dados mockados (não usa o Supabase) |
+
+```bash
+gh variable set DEMO_MODE --body "true"
+```
+
+> Enquanto a v0.2.0 não implementar a autenticação e o `SupabaseGameRepository`,
+> mantenha `DEMO_MODE=true` — senão o app abriria sem backend funcional.
+
 ---
 
 ## 4. Assinatura do Android (keystore)
@@ -78,8 +91,10 @@ você não trava o pipeline enquanto o backend não está pronto.
 Sem assinatura própria, a Play Store recusa a atualização. Gere uma vez:
 
 ```powershell
-keytool -genkey -v -keystore android/app/upload-keystore.jks `
-  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+keytool -genkeypair -v -keystore android/app/upload-keystore.jks `
+  -storetype PKCS12 -keyalg RSA -keysize 2048 -validity 10000 `
+  -alias upload -storepass "<senha>" -keypass "<senha>" `
+  -dname "CN=Imperiall Game, O=Imperiall, C=BR"
 ```
 
 Converta para base64 e guarde no GitHub:
@@ -88,6 +103,8 @@ Converta para base64 e guarde no GitHub:
 $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes("android/app/upload-keystore.jks"))
 gh secret set ANDROID_KEYSTORE_BASE64 --body $b64
 gh secret set ANDROID_KEY_ALIAS --body "upload"
+gh secret set ANDROID_KEYSTORE_PASSWORD --body "<senha>"
+gh secret set ANDROID_KEY_PASSWORD --body "<senha>"
 ```
 
 > **Guarde o `.jks` e as senhas em um gerenciador de senhas.** Se perder o keystore,

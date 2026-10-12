@@ -31,6 +31,8 @@ Categorias: `Adicionado`, `Alterado`, `Descontinuado`, `Removido`, `Corrigido`, 
 
 - **Actions do CI atualizadas** para as versões atuais (`checkout@v7`, `setup-java@v6`,
   `upload-artifact@v7`, `action-gh-release@v3`), removendo os avisos de Node 20 depreciado.
+- **`docs/SECURITY.md`** alinhado ao setup real: comando do keystore com PKCS12, os 4
+  segredos de assinatura e a variável de repositório `DEMO_MODE`.
 
 ## [0.1.1] - 2026-10-12
 
